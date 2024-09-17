@@ -1,1 +1,1 @@
-alert("Nginx Welcome")
+//alert("Nginx Welcome")
