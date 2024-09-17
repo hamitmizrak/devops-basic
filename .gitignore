@@ -1,0 +1,5 @@
+# Customise Git untracked
+node_modules/
+
+# Loglama 
+*.log
