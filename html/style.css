@@ -1,0 +1,10 @@
+*{
+    margin:0;
+    padding: 0px;
+    box-sizing: content-box;
+}
+
+#parag_id{
+    padding: 2rem;
+    text-align: justify;
+}
