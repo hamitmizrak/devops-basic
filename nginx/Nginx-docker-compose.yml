@@ -1,3 +1,22 @@
+# docker-compose --version
+# docker-compose up
+# docker-compose up -d
+# docker-compose down
+# docker-compose restart
+# docker-compose ps
+#
+# docker-compose -f SonarQube-Docker-Compose.yml up
+# docker-compose -f SonarQube-Docker-Compose.yml up -d
+
+# command: sleep infinity => Docker konteynerların sürekli çalışmasını sağlamak için kullanılan linux komutudur.
+# Bu komut konteynarların arka planda sürekli çalışmasını sağlar ve belirli bir görev veya işlem yapılmadığı durumlarda kapanmasını engeller
+
+
+# restart: on-failure => Docker Container çökmesi halinde otomatik başlat
+# restart: no=> Default Yani docker container otomatik olarak restart yapsın
+# restart: unless-stopped: Container durduğında otomatik başlasın
+# restart: always: Docker Container  her zaman otomatik başlasın
+
 
 #@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ 
 
@@ -23,7 +42,7 @@ services:
     volumes:
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf
       - ./nginx/conf.d/default.conf:/etc/nginx/conf.d/default.conf
-      - ./nginx/html:/usr/share/nginx/html
+      - ./html:/usr/share/nginx/html
 
 # Networks
 networks:
@@ -33,3 +52,20 @@ networks:
 
 
 #@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ 
+
+#  docker images
+#  docker ps
+#  docker ps -a
+#  docker container exec -it <CONTAINER_ID> bash
+#  winpty docker container exec -it <CONTAINER_ID> bash
+
+#  winpty docker container exec -it sonarqube_postgres bash
+#  \q => Çıkış
+#  \l => Veritabanı Listelesin
+#  \c sonarqube => Veritabana bağlan
+#  \dt: Tabloları Listele
+#  \d tabloAdi => Tablo özelliklerini göster
+
+# docker volume ls
+# docker volume inspect volumeID
+# docker volume rm  volumeID
