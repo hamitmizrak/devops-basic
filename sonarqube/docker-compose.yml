@@ -11,6 +11,7 @@
 # command: sleep infinity => Docker konteynerların sürekli çalışmasını sağlamak için kullanılan linux komutudur.
 # Bu komut konteynarların arka planda sürekli çalışmasını sağlar ve belirli bir görev veya işlem yapılmadığı durumlarda kapanmasını engeller
 
+
 # restart: on-failure => Docker Container çökmesi halinde otomatik başlat
 # restart: no=> Default Yani docker container otomatik olarak restart yapsın
 # restart: unless-stopped: Container durduğında otomatik başlasın
@@ -31,18 +32,41 @@ services:
       - jdk_volume:/usr/src/myapp
     working_dir: /usr/src/myapp
     networks:
-      - tomcat_network
+      - jdkpostgressonarqube
 
-  # APACHE TOMCAT Services
-  apache_tomcat_web:
-    image: my_tomcat3
+
+  # Postgresql Services
+  postgres:
+    image: postgres:latest
+    container_name: postgres
     restart: on-failure
-    #build: .
-    build:
-      context: .
-      dockerfile: Tomcat-Dockerfile
+    environment:
+      POSTGRES_USER: sonarqube
+      POSTGRES_PASSWORD: sonarqube
+      POSTGRES_DB: sonarqube
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
     ports:
-      - "2222:8080"
+      - "5432:5432"
+    expose:
+      - "5432"
+    networks:
+      - jdkpostgressonarqube
+
+  # SonarQube Services
+  sonarqube:
+    image: sonarqube:latest
+    container_name: sonarqube
+    environment:
+      SONAR_JDBC_URL: jdbc:postgresql://postgres:5432/sonarqube
+      SONAR_JDBC_USERNAME: sonarqube
+      SONAR_JDBC_PASSWORD: sonarqube
+    depends_on:
+      - postgres
+    ports:
+      - "9000:9000"
+    networks:
+      - jdkpostgressonarqube
 
 # Volume
 volumes:
@@ -53,8 +77,8 @@ volumes:
 
 # Network
 networks:
-  tomcat_network:
-    name: tomcat_network
+  jdkpostgressonarqube:
+    name: jdkpostgressonarqube
     driver: bridge
 
 

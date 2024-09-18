@@ -1,84 +1,42 @@
 
-#@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@  
-
-# Image Create
-# docker image build -t customize_nginx .
-
-# Container Create
-# docker container run -d -p 1111:80 --rm --name  customize_nginx
-
-# Daocker Registery Create
-# Step-1: Dockerfile ile image oluştur => docker image build -t customize_nginx .
-# Step-2: DockerHub git public veya private repository oluştur.
-# Step-3: docker ps
-# Step-4: image Name: customize_nginx
-# Step-5: docker image tag imageName javahamitmizrak/oluşturulmuşRepositoryAdi
-# Step-5: docker image tag customize_nginx javahamitmizrak/oluşturulmuşRepositoryAdi
-# Step-6: docker push javahamitmizrak/oluşturulmuşRepositoryAdi
-
-# ÖNEMLİ NOT: eğer windows üzerinden çalıştırıyorsanız sudo tanımayacaktır.
-# ÖNEMLİ NOT: nginx eğer browserda istediğiniz sonuç çıkmazsa browserin cache belleğini temizleyiniz. yoksa nginx'in kendi sayfasını görürüsünüz.
-
-
-#@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@  
-# IMAGE
-# ubuntu Image
+# FROM: Çalıştıracağımız image gösteririr.
+# İmage olarak ubuntu:20.04 kullandım
 FROM ubuntu:20.04
 
-#@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ 
-# MAINTAINER
-LABEL maintainer="hamitmizrak@gmail.com"
+# Bilgilendirme
+LABEL maintaner="hamitmizrak@gmail.com"
 
-#@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ 
-# ENVIRONMENT
-# Ortam Değişkenleri
-ENV AUTHOR="Hamit Mızrak"
-ENV APP_NAME="Ubuntu, Apache Tomcat, JDK"
-ENV YEAR="2024"
-ENV TECH="for devops"
-ENV VERSION="v1.0.0"
-ENV TOMCAT_HOST=localhost
-ENV TOMCAT_PORT=2222
+# Çevresel Değişkenler
+ENV APP_NAME="Ubuntu, apache Tomcat, JDK"
+ENV VERSION="V1.0.0"
+ENV PORT="http://localhost:1111"
 
-# Ortam Değişkenleri Çalıştırmak
-RUN echo "Yazar: $AUTHOR"
-RUN echo "Uygulama: $APP_NAME"
+# Çalıştırmak
+RUN echo "App Name: $APP_NAME"
 RUN echo "Version: $VERSION"
-RUN echo "Year: $YEAR"
-RUN echo "Yazar: $AUTHOR"
-RUN echo "URL: http://$TOMCAT_HOST:$TOMCAT_PORT"
+RUN echo "Port:1111 $PORT"
 
-#@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ 
-# PERSIST
-VOLUME /tmp
+# Data Persist (Kalıcı Veri)
+VOLUME /tmp 
 
-#@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ 
-# COPY
-# Local bilgisayarımdaki bilgileri Docker image dosyaları ile yer değiştirmek
-COPY ./config/tomcat-users.xml /usr/local/tomcat/conf
-COPY ./config/context.xml /usr/local/tomcat/webapps/manager/META-INF
+# Tomcat konfigürasyon dosyasını kopyala
+COPY ./tomcat/tomcat-users.xml /usr/local/tomcat/conf/
+COPY ./tomcat/context.xml /usr/local/tomcat/webapps/manager/META-INF/
 
-#@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ 
 # Tomcat War Added
 COPY ./webapps/sample.war /usr/local/tomcat/webapps
 
 
-#@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ 
-# Dockerfile işlemleri takılmadan, kesintisiz olarak çalışsın
 # Set environment variables for non-interactive installs
 # ENV DEBIAN_FRONTEND=noninteractive komutu, Debian tabanlı sistemlerde (bu durumda Ubuntu) paket yönetim sistemi olan apt-get ile 
 # çalışırken, etkileşimli soruları önlemek ve otomatik kurulumu sağlamak için kullanılır. Bu özellikle Dockerfile'da kullanışlıdır,
 # çünkü Dockerfile işlemleri otomatik ve kesintisiz olmalıdır.
 ENV DEBIAN_FRONTEND=noninteractive
 
-#@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ 
-# JDK
+# Install OpenJDK 11 and necessary packages
 RUN apt-get update && apt-get install -y openjdk-11-jre-headless curl && \
-apt-get clean && rm -rf /var/lib/apt/lists/*
+    apt-get clean && rm -rf /var/lib/apt/lists/*
 
-
-#@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ 
-# TOMCAT
 # Set environment variables for Tomcat
 ENV CATALINA_HOME=/usr/local/tomcat
 ENV PATH=$CATALINA_HOME/bin:$PATH
@@ -92,28 +50,25 @@ RUN curl -L https://dlcdn.apache.org/tomcat/tomcat-10/v10.1.25/bin/apache-tomcat
     rm /tmp/tomcat.tar.gz
 
 
-#@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ 
-# EXPOSE
-# apache Tomcat Default
+# Expose the HTTP port
 EXPOSE 8080
 
+# Run Tomcat
+CMD ["catalina.sh", "run"]
 
-#@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ 
-# HEALTHCHECK         ==> Bu image dosyasının sağlık durumu (Container Çalışıyor mu)
-# --interval=30s      ==> 30 saniyede bir sağlık kontrolü yapılsın
-# --timeout=10s       ==> 10 saniyede Sağlık kontrolünü tamamlasın
-# --start-periyod=5s  ==> Konteynar başladığında sağlık kontrolünün başlamasın için 5 saniye bekle
-# --retries=3         ==> Sağlık kontrolünü eğer ilk denemede başarısız olursa 3 defa daha  çalışsın.
-# Eğer bu 3s komutu belirtilenin dışına çıkarsa Docker sağlıksız olarak işaretlenir
-# CMD wget --quiet --tries=1 --spider http://localhost : wget ile localhost istek atmak
-HEALTHCHECK --interval=30s --timeout=10s \
-    --start-period=5s --retries=3 \
-    CMD curl -f http://${NGINX_HOST}:${NGINX_PORT}/ || exit 1
-#CMD wget --quiet --tries=1  --spider http://localhost:80 || exit 1
+# HEALTHCHECK: Sağlık kontrolünü Eklesin
+# HEALTHCHECK: Bu container çalışıyor mu ?
+#--interval=30s : Sağlık kontrolünü her 30 saniye bir çalıştırsın
+#--timeout=10s  : Sağlık kontrolünü tamamlanması için 10 saniye beklesin
+# --start-period=5s : Konteyner başlatıldıktan sonra sağlık kontrolünü başlatması için 5 saniye beklesin
+# --retries=3 \: Sağlık kontrolü başarısız olursa 3 defa deneme yapsın 
+#CMD curl -f http://localhost:1111/ || exit 1 : Belirtilen url'de kontrol başarısız olursa HTTP 200 dışında yanıt versin ve çıkış kodu 1 olsun
+# Sağlık durumunu kontrol için docker ps STATUS sutunda konteynarın durumuna bakabilirsin
+# Konteynar sağlıklı çalışıyor mu
+HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
+ CMD wget --quiet --tries=1 --spider http://localhost:1111 exit 1
 
 
-
-##########################################################################
 # Dockerfile: Kendi image dosyalarımızı oluşturmak için
 # Dockerfile Çalıştırma
 # docker build -t image_name .
