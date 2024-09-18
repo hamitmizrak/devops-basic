@@ -49,3 +49,20 @@ nginxDocker() {
     cd ../
 }
 nginxDocker
+
+
+
+# Docker Compose
+tomcatDocker() {
+    echo -e "Nginx Docker başlıyor...."
+    # Eğer defaultta: daocker-compose.yml ise
+    # docker-compose up
+    # docker-compose up -d
+
+    # Nginx-docker-compose.yml
+    #docker-compose -f Nginx-docker-compose.yml up -d
+    cd /nginx
+    docker-compose -f Nginx-docker-compose.yml up -d
+    cd ../
+}
+tomcatDocker

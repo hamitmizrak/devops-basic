@@ -1,0 +1,5 @@
+Nginx       => http://localhost:1111
+Tomcat      => http://localhost:2222
+SonarQube   => http://localhost:9000
+backend     => http://localhost:3333
+frontend    => http://localhost:4444

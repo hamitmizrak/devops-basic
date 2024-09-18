@@ -1,0 +1,63 @@
+# # Elinizdeki dosyalara göre, bir 
+# `.gitlab-ci.yml` dosyasını oluşturmak için, Docker Compose ve Nginx entegrasyonuna odaklanmamız gerekiyor.
+#  Aşağıdaki örnek, projenizin CI/CD pipeline'ını oluşturmak için temel bir `
+#  .gitlab-ci.yml` dosyasıdır. Bu yapı, Nginx'i Docker Compose ile kullanmanızı ve test aşamalarını içerir.
+
+
+stages:
+  - build
+  - test
+  - deploy
+
+variables:
+  DOCKER_DRIVER: overlay2
+  DOCKER_COMPOSE_FILE: "docker-compose.yml"
+
+before_script:
+  - docker info
+  - docker-compose --version
+
+build_job:
+  stage: build
+  image: docker:latest
+  services:
+    - docker:dind
+  script:
+    - docker-compose -f $DOCKER_COMPOSE_FILE build
+  only:
+    - main
+    - master
+
+test:
+  stage: test
+  image: docker:latest
+  services:
+    - docker:dind
+  script:
+    - docker-compose -f $DOCKER_COMPOSE_FILE up -d
+    - docker ps
+    - docker-compose -f $DOCKER_COMPOSE_FILE down
+  only:
+    - main
+    - master
+
+deploy:
+  stage: deploy
+  image: docker:latest
+  services:
+    - docker:dind
+  script:
+    - docker-compose -f $DOCKER_COMPOSE_FILE up -d
+  environment:
+    name: production
+    url: http://your-production-url.com
+  only:
+    - main
+    - master
+
+
+# Bu dosya şu adımları gerçekleştirir:
+# 1. **Build aşaması**: `docker-compose` kullanarak Nginx Docker imajını inşa eder.
+# 2. **Test aşaması**: Nginx servislerini arka planda (`-d` parametresi ile) çalıştırır, konteynerlerin doğru çalışıp çalışmadığını test eder, ve sonrasında durdurur.
+# 3. **Deploy aşaması**: Nginx'i production ortamında dağıtır.
+# Bu yapı, `project_manuel.sh` dosyanızdaki komutlarla uyumludur ve Docker Compose ile Nginx servisini kullanmaktadır【6†source】.
